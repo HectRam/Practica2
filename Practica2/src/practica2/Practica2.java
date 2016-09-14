@@ -27,9 +27,10 @@ public class Practica2 {
         Scanner s = new Scanner(System.in);
         String thisLine,dir,a=".asm",b=".err",i=".inst",ax=null;
         thisLine = null;
-        int poslin=0,c=0,pos=0,banbuffer=0,compara=0,banCod=0;
+        int poslin=0,c=0,pos=0,banbuffer=0,compara=0,banCod=0,sioperI=2;
         espacios es;
-        String etiqueta = null, codop = null, operando = null, comentario=null,linToken=null,exEt=null,exCod=null,moddir=null;
+        String etiqueta = null, codop = null, operando = null, comentario=null,linToken=null,codoplin=null,sioperS=null;
+        String exEt=null,exCod=null,moddir=null,codcal=null,bytescal=null,bytesxcal=null,totbytes=null,samecod=null,dircod=null,samecod2=null;
         Vector<String> cadena;
         cadena = new Vector<>();
         System.out.print("Ruta del archivo? ");
@@ -55,12 +56,13 @@ public class Practica2 {
             BufferedWriter comentarios=new BufferedWriter(fwcom);
            // StringTokenizer Token = new StringTokenizer(dir+a);
             boolean banEnd,espacio,banCom;
+            boolean errtab=false;
             banEnd = false;
             espacio = false;
             banCom= false;
             
-             //System.out.println("Linea---ETQ-----CODOP-----OPER---");
-            instrucciones.write("Linea---ETQ-----CODOP-----OPER---");
+           //  System.out.println("Linea---ETQ-----CODOP-----OPER---");
+            instrucciones.write("Linea---ETQ-----CODOP-----OPER-----modos");
             instrucciones.newLine();
              while((thisLine = lectb.readLine()) != null && banEnd != true){ //empieza a leer las lineas en loop
                         es = new espacios();
@@ -127,34 +129,64 @@ public class Practica2 {
                          /**
                           *Inicia practica 2
                           */
-                         
-                     // System.out.println("Es codop   "+codop);
+                       //  System.out.println("Lintok "+linToken);
+                
                          banbuffer=0; 
                          compara=0;
+                         etiqueta="null";
+                         codop=linToken;
+                         if(codop.matches("^[a-z]{1,4}")&&!"equ".equals(codop)||codop.matches("^[ET][\\w]")){
+                            etiqueta=codop;
+                              codop="null";
+                        }
                          
-                         
-                         String TABOP="TABOP.ASM";
-                         
+                         String TABOP="TABOP";
+                         String mayus;
                          try{
-                             FileInputStream fsaux = new FileInputStream(TABOP);
+                             FileInputStream fsaux = new FileInputStream(TABOP+a);
                              DataInputStream dsaux = new DataInputStream(fsaux);
                              BufferedReader  braux = new BufferedReader(new InputStreamReader(dsaux));
                              
                              String linaux;
-                             System.out.println("Tab lin "+linToken);
+                             //System.out.println("Tab lin "+linToken);
+                             
                              while((linaux = braux.readLine())!= null){
                                  
                                  StringTokenizer aucod = new StringTokenizer(linaux,"|");
+                                        mayus=linToken;
                                    exCod=aucod.nextToken();
                                  //  System.out.println("Tabop: "+exCod);
-                                   
-                                   if(exCod.compareTo(linToken)==0){
-                                       
+                                   errtab=true;
+                                   if(exCod.compareTo(mayus.toUpperCase())==0){
+                                       errtab=false;
                                        codop=linToken;
                                        
                                        banCod=1;
-                                       moddir=aucod.nextToken();
-                                       System.out.println("Codop: "+codop+" Modo de direccionamiento "+moddir);
+                                       
+                                     //  System.out.println("Auxiliar "+linaux);
+                                       
+                                         sioperS=aucod.nextToken("|");    //Vrifica si lleva operando
+                                        sioperI=Integer.parseInt(sioperS); //convierte de String a Cadena
+                                       moddir=aucod.nextToken("|");   //Modo de direccionamiento  
+                                       codcal=aucod.nextToken("|");  //Codigo calculado
+                                       bytescal=aucod.nextToken("|"); //Bytes calculados
+                                       bytesxcal=aucod.nextToken("|");  //Bytes por calcular
+                                       totbytes=aucod.nextToken("|");  //Total de bytes
+                                       System.out.print("Codop: "+codop);
+                                       System.out.print(" Modo de direccionamiento: "+moddir);
+                                       System.out.print(" Codigo calculado: "+codcal);
+                                       System.out.print(" Bytes calculados: "+bytescal);
+                                       System.out.print(" Bytes por calcular: "+bytesxcal);
+                                       System.out.println(" Total de bytes: "+totbytes);
+                                     
+                                       
+                                           dircod=codop;
+                                           File fcod =new File(dircod+a);
+                                           FileWriter fwcod=new FileWriter(fcod,true);
+                                           BufferedWriter modosdir=new BufferedWriter(fwcod);
+                                           
+                                           modosdir.write(moddir+" ");
+                                           modosdir.close();
                                        
                                    }
                                    
@@ -165,22 +197,9 @@ public class Practica2 {
                              
                          }catch(Exception r){
                              System.out.println("Hubo un error en el Tabop "+r);
-                         }
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                        if(codop.matches("^[a-z]{1,4}")&&!"equ".equals(codop)||codop.matches("^[ET][\\w]")){
-                            etiqueta=codop;
-
-                            codop="null";
-                        }
+                         }//termina practica 2
                          
                          }
-                                
                                 /**
                                   * Entra Operando
                                   */  
@@ -285,11 +304,31 @@ public class Practica2 {
                    if(operando==" "){
                      operando="null";
                      }
-                  if(codop!= "null"){
+                  if(banCod==1){
                       
-                  //System.out.println(c+"  ee  "+etiqueta+"  cc  "+codop+"  oo  "+operando);
-                  instrucciones.write(c+"      "+etiqueta+"      "+codop+"      "+operando);
+                     samecod2=codop+a;
+                      File f2 =new File(samecod2);
+                      FileInputStream fcod2 = new FileInputStream(samecod2);
+                      DataInputStream inputcod2 = new DataInputStream(fcod2);
+                      BufferedReader brcod2 = new BufferedReader(new InputStreamReader(inputcod2));
+                      codoplin=brcod2.readLine();//imprime los modos de direccionamiento
+                      
+                      
+                      
+                //  System.out.println(c+"  ee  "+etiqueta+"  cc  "+codop+"  oo  "+operando);
+                  instrucciones.write(c+"      "+etiqueta+"      "+codop+"      "+operando+"      "+codoplin);
                   instrucciones.newLine();
+                  brcod2.close();
+                  f2.delete();
+                  
+                  }
+                  if(sioperI==1&&operando=="null"){
+                      error.write("Linea: "+c+" Error la instruccion del codop debe de tener operando");
+                      error.newLine();
+                  }
+                  if(sioperI==0&&operando!="null"){
+                      error.write("Linea: "+c+" Error la instruccion del codop no debe de tener operando");
+                      error.newLine();
                   }
                   if(operando!="null"&&codop=="null"&&etiqueta!="null")
                   {
@@ -307,8 +346,19 @@ public class Practica2 {
                       error.write("Linea: "+c+" Error no se puede tener tener operando sin codop");
                       error.newLine();
                   }
+                  if(banCod==0){
+                      error.write("Linea: "+c+" Error codigo no encontrado");
+                      error.newLine();
+                  }
+                  if(errtab!=false&&etiqueta=="null"&&banCod==0){
+                                 error.write("Error Linea: "+c+" Operando no valido");
+                                 error.newLine();
+                             }
                      //  System.out.println(thisLine);//muestra temporal
+                     errtab=false;
                      banCom=false;
+                     banCod=0;
+                     sioperI=2;
                      if(codop.equals("END")||codop.equals("End")||codop.equals("end")){//verifica si tiene End
                            banEnd = true;
                        }
@@ -333,6 +383,10 @@ public class Practica2 {
         
     }
     
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         // TODO code application logic here
         Practica2 H = new Practica2();
