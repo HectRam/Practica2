@@ -29,7 +29,7 @@ public class Practica2 {
         thisLine = null;
         int poslin=0,c=0,pos=0,banbuffer=0,compara=0,banCod=0,sioperI=2;
         espacios es;
-        String etiqueta = null, codop = null, operando = null, comentario=null,linToken=null,codoplin=null,sioperS=null;
+        String etiqueta = null, codop = null, operando = null, comentario=null,linToken=null,codoplin=null,sioperS=null,codopprue=null;
         String exEt=null,exCod=null,moddir=null,codcal=null,bytescal=null,bytesxcal=null,totbytes=null,samecod=null,dircod=null,samecod2=null;
         Vector<String> cadena;
         cadena = new Vector<>();
@@ -55,13 +55,14 @@ public class Practica2 {
             FileWriter fwcom=new FileWriter(f2com,true);
             BufferedWriter comentarios=new BufferedWriter(fwcom);
            // StringTokenizer Token = new StringTokenizer(dir+a);
-            boolean banEnd,espacio,banCom;
-            boolean errtab=false;
+            boolean banEnd,espacio,banCom,banderalim,errBan,banEt,errtab=false;
             banEnd = false;
             espacio = false;
             banCom= false;
-            
-           //  System.out.println("Linea---ETQ-----CODOP-----OPER---");
+            errBan=false;
+            banderalim=false;
+            banEt=false;
+            //System.out.println("Linea---ETQ-----CODOP-----OPER---");
             instrucciones.write("Linea---ETQ-----CODOP-----OPER-----modos");
             instrucciones.newLine();
              while((thisLine = lectb.readLine()) != null && banEnd != true){ //empieza a leer las lineas en loop
@@ -134,10 +135,11 @@ public class Practica2 {
                          banbuffer=0; 
                          compara=0;
                          etiqueta="null";
-                         codop=linToken;
-                         if(codop.matches("^[a-z]{1,4}")&&!"equ".equals(codop)||codop.matches("^[ET][\\w]")){
+                         codopprue=linToken;
+                         if(codopprue.matches("^[a-z]{1,4}")&&!"equ".equals(codopprue)||codopprue.matches("^[ET][\\w]")){
                             etiqueta=codop;
-                              codop="null";
+                              codopprue="null";
+                              banEt=true;
                         }
                          
                          String TABOP="TABOP";
@@ -157,10 +159,13 @@ public class Practica2 {
                                    exCod=aucod.nextToken();
                                  //  System.out.println("Tabop: "+exCod);
                                    errtab=true;
-                                   if(exCod.compareTo(mayus.toUpperCase())==0){
+                                   if(exCod.compareTo(mayus.toUpperCase())==0&&mayus!="null"&&mayus!=null&&mayus!=" "){
                                        errtab=false;
                                        codop=linToken;
+                                       if(codop!="null"&&codop!=null&&codop!=" "){
+                                           
                                        
+                                   //     System.out.println("Codop comparado "+codop);
                                        banCod=1;
                                        
                                      //  System.out.println("Auxiliar "+linaux);
@@ -172,22 +177,25 @@ public class Practica2 {
                                        bytescal=aucod.nextToken("|"); //Bytes calculados
                                        bytesxcal=aucod.nextToken("|");  //Bytes por calcular
                                        totbytes=aucod.nextToken("|");  //Total de bytes
-                                       System.out.print("Codop: "+codop);
+                            /*           System.out.print("Codop: "+codop);
                                        System.out.print(" Modo de direccionamiento: "+moddir);
                                        System.out.print(" Codigo calculado: "+codcal);
                                        System.out.print(" Bytes calculados: "+bytescal);
                                        System.out.print(" Bytes por calcular: "+bytesxcal);
                                        System.out.println(" Total de bytes: "+totbytes);
-                                     
+                              */       
                                        
-                                           dircod=codop;
-                                           File fcod =new File(dircod+a);
+                                           dircod=codop+a;
+                                           if(dircod!="null.asm")
+                                           {
+                                           File fcod =new File(dircod);
                                            FileWriter fwcod=new FileWriter(fcod,true);
                                            BufferedWriter modosdir=new BufferedWriter(fwcod);
                                            
                                            modosdir.write(moddir+" ");
                                            modosdir.close();
-                                       
+                                           }
+                                       }
                                    }
                                    
                                    
@@ -231,7 +239,7 @@ public class Practica2 {
                                         error.write("Error Linea: "+c+" Hubo un error en el operando "+codop);
                                         error.newLine();
                                          operando=" ";
-                                         
+                                         errBan=true;
                                      }
                                      /**
                                       * Cierra Operando
@@ -304,9 +312,53 @@ public class Practica2 {
                    if(operando==" "){
                      operando="null";
                      }
-                  if(banCod==1){
+                  
+                  if(sioperI==1&&operando=="null"){
+                      error.write("Linea: "+c+" Error la instruccion del codop debe de tener operando");
+                      error.newLine();
+                      errBan=true;
+                  }
+                  if(sioperI==0&&operando!="null"){
+                      error.write("Linea: "+c+" Error la instruccion del codop no debe de tener operando");
+                      error.newLine();
+                      errBan=true;
+                  }
+                  if(operando!="null"&&codop=="null"&&etiqueta!="null")
+                  {
+                     // System.out.println("Linea: "+c+" Error no se puede tener tener etiqueta u operando sin codop");
+                      error.write("Linea: "+c+" Error no se puede tener tener etiqueta y operando sin codop ");
+                      error.newLine();
+                      errBan=true;
+                      
+                  }
+                  if(operando=="null"&&codop=="null"&&etiqueta!="null"){
+                     error.write("Linea: "+c+" Error no se puede tener tener etiqueta sin codop");
+                     error.newLine();
+                     errBan=true;
+                  }
+                  if(operando!="null"&&codop=="null"&&etiqueta=="null")
+                  {
+                      error.write("Linea: "+c+" Error no se puede tener tener operando sin codop");
+                      error.newLine();
+                      errBan=true;
+                  }
+                  if(banCod==0){
+                      error.write("Linea: "+c+" Error codigo no encontrado");
+                      error.newLine();
+                      errBan=true;
+                      banderalim=true;
+                  }
+                  if(errtab!=false&&etiqueta=="null"&&banCod==0&&banderalim==false){
+                                 error.write("Error Linea: "+c+" Operando no valido");
+                                 error.newLine();
+                                 errBan=true;
+                             }
+                     if(banCod==1&&errBan==false){
                       
                      samecod2=codop+a;
+                     System.out.println("codop arch: "+samecod2);
+                     if(samecod2!="null.asm")
+                     {
                       File f2 =new File(samecod2);
                       FileInputStream fcod2 = new FileInputStream(samecod2);
                       DataInputStream inputcod2 = new DataInputStream(fcod2);
@@ -320,55 +372,46 @@ public class Practica2 {
                   instrucciones.newLine();
                   brcod2.close();
                   f2.delete();
-                  
-                  }
-                  if(sioperI==1&&operando=="null"){
-                      error.write("Linea: "+c+" Error la instruccion del codop debe de tener operando");
-                      error.newLine();
-                  }
-                  if(sioperI==0&&operando!="null"){
-                      error.write("Linea: "+c+" Error la instruccion del codop no debe de tener operando");
-                      error.newLine();
-                  }
-                  if(operando!="null"&&codop=="null"&&etiqueta!="null")
-                  {
-                     // System.out.println("Linea: "+c+" Error no se puede tener tener etiqueta u operando sin codop");
-                      error.write("Linea: "+c+" Error no se puede tener tener etiqueta y operando sin codop ");
-                      error.newLine();
+                       }
+                       }
+                     if(errBan==true)
+                     {
+                         if(codop!="null"){
+                             
+                         
+                         samecod2=codop+a;
+                     System.out.println("codop arch: "+samecod2);
+                     if(samecod2!="null.asm")
+                     {
+                      File f2 =new File(samecod2);
+                      FileInputStream fcod2 = new FileInputStream(samecod2);
+                      DataInputStream inputcod2 = new DataInputStream(fcod2);
+                      BufferedReader brcod2 = new BufferedReader(new InputStreamReader(inputcod2));
+                      codoplin=brcod2.readLine();
                       
-                  }
-                  if(operando=="null"&&codop=="null"&&etiqueta!="null"){
-                     error.write("Linea: "+c+" Error no se puede tener tener etiqueta sin codop");
-                     error.newLine();
-                  }
-                  if(operando!="null"&&codop=="null"&&etiqueta=="null")
-                  {
-                      error.write("Linea: "+c+" Error no se puede tener tener operando sin codop");
-                      error.newLine();
-                  }
-                  if(banCod==0){
-                      error.write("Linea: "+c+" Error codigo no encontrado");
-                      error.newLine();
-                  }
-                  if(errtab!=false&&etiqueta=="null"&&banCod==0){
-                                 error.write("Error Linea: "+c+" Operando no valido");
-                                 error.newLine();
-                             }
+                      brcod2.close();
+                      f2.delete();
+                     }
+                         }
+                     }
                      //  System.out.println(thisLine);//muestra temporal
                      errtab=false;
                      banCom=false;
+                     errBan=false;
+                     banderalim=false;
                      banCod=0;
                      sioperI=2;
                      if(codop.equals("END")||codop.equals("End")||codop.equals("end")){//verifica si tiene End
                            banEnd = true;
                        }
-                      else if(banEnd != false)
+                      
+                    }
+                    if(banEnd==false)
                        {
                          //  System.err.println("Linea: "+c+"Error: no se encontro el final del archivo(End)");
-                          error.write("Linea: "+c+"Error: no se encontro el final del archivo(End)");
+                          error.write("Error: no se encontro el final del archivo(End)");
                            error.newLine();
                        }
-                    }
                 //System.out.println("Fin del recorrido");   
              //  fw.close();
              comentarios.close();
