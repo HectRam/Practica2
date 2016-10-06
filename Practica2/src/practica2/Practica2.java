@@ -81,7 +81,7 @@ public class Practica2 {
                        
                    linToken=Token.nextToken();
                     
-                   
+                   //manda a la clase publica espacio
                      espacio = es.spacio(thisLine);
                  /* if(thisLine.charAt(0) == ' ' || thisLine.charAt(0) == '\t'){
                              
@@ -118,29 +118,22 @@ public class Practica2 {
                       /**
                        * EntraEtiqueta
                        */
-                       /*
-                         if(linToken.matches("^[a-zA-Z]{1}[\\w]{0,8}$"))
+                       
+                         if(linToken.matches("^[a-zA-Z]{1,8}[^;]{0,1}[\\w]$")&&espacio==false&&banCom==false)
                          {
-                             System.out.println("Etiqueta "+linToken);
-                         }*/
+                           //  System.out.println("Etiqueta "+linToken);
+                             
+                         }
                          /**
                          * Entra Codop
                          */
-                                if(linToken.matches("^[a-zA-Z]{1,4}(?!\\d )[/.]{0,1}[a-zA-Z]$")&&banCom==false){
+                                if(linToken.matches("[a-zA-Z]{1,4}(?!\\d )[/.]{0,1}[a-zA-Z]$")&&banCom==false){
                          /**
                           *Inicia practica 2
                           */
                        //  System.out.println("Lintok "+linToken);
                 
-                         banbuffer=0; 
-                         compara=0;
-                         etiqueta="null";
-                         codopprue=linToken;
-                         if(codopprue.matches("^[a-z]{1,4}")&&!"equ".equals(codopprue)||codopprue.matches("^[ET][\\w]")){
-                            etiqueta=codop;
-                              codopprue="null";
-                              banEt=true;
-                        }
+                         
                          
                          String TABOP="TABOP";
                          String mayus;
@@ -205,8 +198,18 @@ public class Practica2 {
                              
                          }catch(Exception r){
                              System.out.println("Hubo un error en el Tabop "+r);
-                         }//termina practica 2
-                         
+                         }
+                         banbuffer=0; 
+                         compara=0;
+                         //etiqueta="null";
+                         codopprue=linToken;
+                         if(codopprue.matches("^[a-z]{1,4}")&&!"equ".equals(codopprue)&&espacio==false&&codopprue!=codop){
+                             
+                            etiqueta=codopprue;
+                            System.out.println("Eticod: "+codopprue);
+                              codopprue="null";
+                              banEt=true;
+                        }//termina practica 2
                          }
                                 /**
                                   * Entra Operando
@@ -252,23 +255,24 @@ public class Practica2 {
                                       */
                                      
                                    //  thisLine.split("\\s");
-                                     
+                                     //entra a etiqueta
                                      if(espacio==false)
-                                     {
+                                     {     
                                            // thisLine.split(";");
                                          pos=0;
                                          exEt=" "; 
                                      
                                         // exEt=thisLine.substring(0,pos);
                                         // System.out.println("Pos "+pos);
-                                         if(linToken.matches("^[a-zA-Z]{1,8}[^;]{0,1}[\\w]$")&&banCom==false)
+                                         if(linToken.matches("^[a-zA-Z]{1,8}[^;]{0,1}[\\w]$")&&banCom==false&&codop!=linToken)
                                          {
                                              
-                                            //System.out.println("Lin token "+linToken);
+                                            System.out.println("Lin token eti: "+linToken);
+                                           // etiqueta=linToken;
                                             if(poslin!=0&&thisLine.charAt(poslin)!=' '&&poslin>2){
                                             //   System.out.println("com pos"+thisLine.charAt(poslin)+"Npos "+poslin);
                                                exEt=thisLine.substring(0,poslin);
-                                            //   System.out.println("Etiqueta comen "+exEt);
+                                               //System.out.println("Etiqueta "+exEt);
                                             }
                                             
                                             //System.out.println("Et despues! "+exEt);
@@ -356,7 +360,7 @@ public class Practica2 {
                      if(banCod==1&&errBan==false){
                       
                      samecod2=codop+a;
-                     System.out.println("codop arch: "+samecod2);
+                     //System.out.println("codop arch: "+samecod2);
                      if(samecod2!="null.asm")
                      {
                       File f2 =new File(samecod2);
@@ -380,7 +384,7 @@ public class Practica2 {
                              
                          
                          samecod2=codop+a;
-                     System.out.println("codop arch: "+samecod2);
+                    // System.out.println("codop arch: "+samecod2);
                      if(samecod2!="null.asm")
                      {
                       File f2 =new File(samecod2);
